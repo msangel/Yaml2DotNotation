@@ -1,0 +1,27 @@
+buildscript {
+
+}
+
+apply plugin: 'java'
+
+group 'io.github.msangel.yaml2dotnotation'
+version '1.0.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.yaml:snakeyaml:1.20'
+}
+
+
+wrapper {
+    doLast {
+        delete "${projectDir}/gradlew.bat"
+    }
+}
