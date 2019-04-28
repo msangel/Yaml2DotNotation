@@ -1,12 +1,10 @@
 package ua.co.k.yaml2dotnotation;
 
-import org.repackage.v2_8_5.com.google.gson.reflect.TypeToken;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,8 +20,6 @@ class Yaml2Props {
 
 
     public static <T> T load(Map<String, Object> data, Class<T> clazz) {
-        Type type = new TypeToken<String>() {
-        }.getType();
         return null;
     }
 
