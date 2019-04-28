@@ -39,15 +39,15 @@ public class Main {
         ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
         URL resource = Main.class.getResource("/test.yml");
         DottedProperties obj = yamlReader.readValue(resource, DottedProperties.class);
-        List<String> a = obj.getProperty("/a", new TypeReference<List<String>>() {
+        List<String> a = obj.getProperty("a", new TypeReference<List<String>>() {
         });
 
         System.out.println("a is: " + a);
 
-        System.out.println("b is: " + obj.getProperty("/b", new TypeReference<String>() {}));
+        System.out.println("b is: " + obj.getProperty("b", new TypeReference<String>() {}));
 
 
-        System.out.println("c is: " + obj.getProperty("/c/1", new TypeReference<TestEntry>() {}));
+        System.out.println("c is: " + obj.getProperty("c.1", new TypeReference<TestEntry>() {}));
 
         System.out.println(obj.toString());
     }

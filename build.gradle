@@ -3,6 +3,8 @@ buildscript {
 }
 
 apply plugin: 'java'
+apply plugin: "maven"
+apply plugin: "maven-publish"
 
 group 'io.github.msangel.yaml2dotnotation'
 version '1.0.0-SNAPSHOT'
@@ -28,3 +30,25 @@ wrapper {
         delete "${projectDir}/gradlew.bat"
     }
 }
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            def releasesRepoUrl = "${project.rootDir}/repos/releases"
+            def snapshotsRepoUrl = "${project.rootDir}/repos/snapshots"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+
+tasks.publish.dependsOn(build)
+tasks.install.dependsOn(build)
+
+defaultTasks 'install'
