@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata modelVersion="1.1.0">
-  <groupId>io.github.msangel.yaml2dotnotation</groupId>
+  <groupId>io.github.msangel</groupId>
   <artifactId>Yaml2DotNotation</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <versioning>
     <snapshot>
-      <timestamp>20190428.224107</timestamp>
-      <buildNumber>2</buildNumber>
+      <timestamp>20190428.225436</timestamp>
+      <buildNumber>1</buildNumber>
     </snapshot>
-    <lastUpdated>20190428224107</lastUpdated>
+    <lastUpdated>20190428225436</lastUpdated>
     <snapshotVersions>
       <snapshotVersion>
         <extension>jar</extension>
-        <value>1.0.0-20190428.224107-2</value>
-        <updated>20190428224107</updated>
+        <value>1.0.0-20190428.225436-1</value>
+        <updated>20190428225436</updated>
       </snapshotVersion>
       <snapshotVersion>
         <extension>pom</extension>
-        <value>1.0.0-20190428.224107-2</value>
-        <updated>20190428224107</updated>
+        <value>1.0.0-20190428.225436-1</value>
+        <updated>20190428225436</updated>
       </snapshotVersion>
     </snapshotVersions>
   </versioning>
