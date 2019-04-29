@@ -13,6 +13,23 @@ version '1.0.0-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+// https://www.petrikainulainen.net/programming/gradle/getting-started-with-gradle-integration-testing/#comment-1197634
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-test/java')
+        }
+        resources.srcDir file('src/integration-test/resources')
+    }
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
 repositories {
     mavenCentral()
     jcenter()
@@ -24,6 +41,7 @@ dependencies {
     testCompile 'org.hamcrest:hamcrest-core:2.1'
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.+'
+    integrationTestCompile 'org.assertj:assertj-core:3.0.0'
 }
 
 
@@ -66,9 +84,60 @@ jacocoTestCoverageVerification {
    }
 }
 
+
+test {
+    testLogging {
+        // Make sure output from
+        // standard out or error is shown
+        // in Gradle output.
+        showStandardStreams = true
+
+        // Or we use events method:
+        // events 'standard_out', 'standard_error'
+
+        // Or set property events:
+        // events = ['standard_out', 'standard_error']
+
+        // Instead of string values we can
+        // use enum values:
+        // events org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT,
+        //        org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR,
+    }
+}
+
+task integrationTest(type: Test) {
+    testLogging {
+        showStandardStreams = true
+        exceptionFormat = 'full'
+
+        // https://mrhaki.blogspot.com/2014/10/gradle-goodness-show-standard-out-or.html
+        events = [ /*"started", */"skipped", "passed", "failed" /*, 'standard_out', 'standard_error'*/]
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    outputs.upToDateWhen { false }
+}
+// Makes integration tests not run by default.
+check.dependsOn -= integrationTest
+
+
 tasks.jacocoTestCoverageVerification.dependsOn(jacocoTestReport)
 tasks.publish.dependsOn(jacocoTestCoverageVerification)
 tasks.publish.dependsOn(build)
 tasks.install.dependsOn(build)
 
 defaultTasks 'install'
+
+// make idea aware of it correctly
+apply plugin: 'idea'
+idea {
+    module {
+        testSourceDirs += project.sourceSets.integrationTest.java.srcDirs
+        testSourceDirs += project.sourceSets.integrationTest.resources.srcDirs
+        scopes.TEST.plus += configurations.integrationTestCompile
+        scopes.TEST.plus += configurations.integrationTestRuntime
+    }
+}

@@ -38,10 +38,10 @@ public class BaseTest {
         List<String> a = props.getProperty("a", new TypeReference<List<String>>() {});
 
         assertArrayEquals(new String[]{"1", "2", "3"}, a.toArray());
-        assertEquals("lol", obj.getProperty("b", new TypeReference<String>() {}));
-        assertEquals("lol", obj.getProperty("b", String.class));
-        assertEquals("lol", obj.getProperty("b").asString());
-        TestEntry entry = obj.getProperty("c.1", new TypeReference<TestEntry>() {});
+        assertEquals("lol", props.getProperty("b", new TypeReference<String>() {}));
+        assertEquals("lol", props.getProperty("b", String.class));
+        assertEquals("lol", props.getProperty("b").asString());
+        TestEntry entry = props.getProperty("c.1", new TypeReference<TestEntry>() {});
         assertEquals("3", entry.a);
         assertEquals("4", entry.b);
     }
