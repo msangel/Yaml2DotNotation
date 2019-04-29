@@ -9,11 +9,11 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.io.IOException;
 
-public class DottedPropertiesDeserializer extends JsonDeserializer<DottedProperties> {
+class DottedPropertiesDeserializer extends JsonDeserializer<DottedProperties> {
     @Override
     public DottedProperties deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         ObjectCodec codec = p.getCodec();
         TreeNode treeNode = codec.readTree(p);
-        return new DottedProperties(treeNode, codec);
+        return new Base(treeNode, codec);
     }
 }

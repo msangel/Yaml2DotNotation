@@ -1,96 +1,67 @@
 package ua.co.k.yaml2dotnotation;
 
-import org.yaml.snakeyaml.Yaml;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.AbstractMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Stack;
-import java.util.function.BiConsumer;
+import java.io.*;
+import java.net.URL;
 
-class Yaml2Props {
+public class Yaml2Props {
 
-
-    public static <T> T load(Map<String, Object> data, Class<T> clazz) {
-        return null;
+    @FunctionalInterface
+    public interface CheckedFunction<T, R> {
+        R apply(T t) throws IOException;
     }
 
-    @SuppressWarnings("unchecked")
-    private static Properties loadAsProperty(Path configFilePath) {
-
-        try (final InputStream stream = Files.newInputStream(configFilePath)) {
-            return ((Map<String, Object>) new Yaml().load(new InputStreamReader(stream, Charset.defaultCharset()))).entrySet()
-                    .stream().collect(Properties::new,
-                            new BiConsumer<Properties, Map.Entry<String, Object>>() {
-                                private Stack<String> prefix = new Stack<>();
-
-                                @SuppressWarnings({"unchecked", "Duplicates"})
-                                @Override
-                                public void accept(Properties properties, Map.Entry<String, Object> entry) {
-                                    if (prefix.empty()) {
-                                        prefix.push("");
-                                    }
-                                    if (isBasicType(entry.getValue())) {
-                                        properties.put(prefix.peek() + entry.getKey(), String.valueOf(entry.getValue()));
-                                    } else if (isArrayType(entry.getValue())) {
-                                        if (prefix.empty()) {
-                                            prefix.push(entry.getKey() + ".");
-                                        } else {
-                                            prefix.push(prefix.peek() + entry.getKey() + ".");
-                                        }
-                                        List list = (List) entry.getValue();
-                                        for (int i = 0; i < list.size(); i++) {
-                                            this.accept(properties, new AbstractMap.SimpleEntry<>(String.valueOf(i), list.get(i)));
-                                        }
-                                        prefix.pop();
-                                    } else {
-                                        if (prefix.empty()) {
-                                            prefix.push(entry.getKey() + ".");
-                                        } else {
-                                            prefix.push(prefix.peek() + entry.getKey() + ".");
-                                        }
-                                        for (Map.Entry e : ((Map<String, Object>) entry.getValue()).entrySet()) {
-                                            this.accept(properties, e);
-                                        }
-                                        prefix.pop();
-                                    }
-
-
-                                }
-
-                                private boolean isArrayType(Object value) {
-                                    return List.class.isInstance(value);
-                                }
-
-                                private boolean isBasicType(Object o) {
-                                    if (o == null) {
-                                        return true;
-                                    }
-                                    Class<?> clazz = o.getClass();
-                                    return clazz.equals(Boolean.class) ||
-                                            clazz.equals(Integer.class) ||
-                                            clazz.equals(Character.class) ||
-                                            clazz.equals(Byte.class) ||
-                                            clazz.equals(Short.class) ||
-                                            clazz.equals(Double.class) ||
-                                            clazz.equals(Long.class) ||
-                                            clazz.equals(Float.class) ||
-                                            clazz.isPrimitive() ||
-                                            o instanceof String;
-                                }
-
-                            }
-                            , Hashtable::putAll);
+    private static DottedProperties doInScope(CheckedFunction<ObjectMapper, DottedProperties> arg) {
+        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
+        try {
+            return arg.apply(yamlReader);
         } catch (IOException e) {
-            throw new RuntimeException("problem reading config file", e);
+            throw new RuntimeException("problem reading properties", e);
         }
     }
+
+    public static DottedProperties create(InputStream in) {
+        return doInScope(yamlReader -> yamlReader.readValue(in, DottedProperties.class));
+    }
+
+    public static DottedProperties create(URL resource) {
+        return doInScope(yamlReader -> yamlReader.readValue(resource, DottedProperties.class));
+    }
+
+    public static DottedProperties create(byte[] resource) {
+        return doInScope(yamlReader -> yamlReader.readValue(resource, DottedProperties.class));
+    }
+
+    public static DottedProperties create(DataInput resource) {
+        return doInScope(yamlReader -> yamlReader.readValue(resource, DottedProperties.class));
+    }
+
+    public static DottedProperties create(File resource) {
+        return doInScope(yamlReader -> yamlReader.readValue(resource, DottedProperties.class));
+    }
+
+    public static DottedProperties create(JsonParser resource) {
+        return doInScope(yamlReader -> yamlReader.readValue(resource, DottedProperties.class));
+    }
+
+    public static DottedProperties create(Reader resource) {
+        return doInScope(yamlReader -> yamlReader.readValue(resource, DottedProperties.class));
+    }
+
+    public static DottedProperties create(String resource) {
+        return doInScope(yamlReader -> yamlReader.readValue(resource, DottedProperties.class));
+    }
+
+
+    public static DottedProperties createEmpty() {
+        return new Null();
+    }
+
+    public static DottedProperties cascade(DottedProperties defaults, DottedProperties explisit) {
+        return new Cascade(defaults, explisit);
+    }
+
 }

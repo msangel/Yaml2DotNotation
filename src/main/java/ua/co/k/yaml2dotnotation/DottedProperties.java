@@ -9,7 +9,18 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.io.IOException;
 
 @JsonDeserialize(using = DottedPropertiesDeserializer.class)
-public class DottedProperties {
+public abstract class DottedProperties {
+    public abstract boolean hasProperty(String path);
+
+    public <T> T getProperty(String path, Class<T> ref) {
+        return getProperty(path, new TypeReference<T>(){});
+    }
+
+    public abstract <T> T getProperty(String path, TypeReference<T> ref);
+
+    public CommonTypes getProperty(String path) {
+        return new CommonTypes(path);
+    }
 
     public class CommonTypes {
         private final String path;
@@ -20,46 +31,5 @@ public class DottedProperties {
         public String asString() {
             return DottedProperties.this.getProperty(path, String.class);
         }
-    }
-
-    private final TreeNode treeNode;
-    private final ObjectCodec codec;
-
-    DottedProperties(TreeNode treeNode, ObjectCodec codec) {
-        this.treeNode = treeNode;
-        this.codec = codec;
-    }
-
-    public CommonTypes getProperty(String path) {
-        return new CommonTypes(path);
-    }
-    public <T> T getProperty(String path, Class<T> ref) {
-        path = dotted2pointer(path);
-        JsonParser parser = this.treeNode.at(path).traverse(this.codec);
-        try {
-            return parser.readValueAs(ref);
-        } catch (IOException e) {
-            throw new RuntimeException("problem getting property", e);
-        }
-    }
-
-
-    public <T> T getProperty(String path, TypeReference<T> ref) {
-        path = dotted2pointer(path);
-        JsonParser parser = this.treeNode.at(path).traverse(this.codec);
-        try {
-            return parser.readValueAs(ref);
-        } catch (IOException e) {
-            throw new RuntimeException("problem getting property", e);
-        }
-    }
-
-    @Override
-    public synchronized String toString() {
-        return super.toString();
-    }
-
-    private static String dotted2pointer(String in) {
-        return "/"+String.join("/", in.split("\\."));
     }
 }
