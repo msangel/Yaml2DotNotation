@@ -1,6 +1,9 @@
 package ua.co.k.yaml2dotnotation;
 
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URL;
@@ -8,6 +11,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 public class BaseTest {
 
@@ -16,11 +20,22 @@ public class BaseTest {
         public String b;
     }
 
+    private DottedProperties props;
+
+    TreeNode treeNode;
+    ObjectCodec codec;
+
+    @Before
+    public void init() {
+        treeNode = mock(TreeNode.class);
+        codec = mock(ObjectCodec.class);;
+        props = new Base(treeNode, codec);
+    }
+
     @Test
     public void test() {
-        URL resource = BaseTest.class.getResource("/test.yml");
-        DottedProperties obj = Yaml2Props.create(resource);
-        List<String> a = obj.getProperty("a", new TypeReference<List<String>>() {});
+
+        List<String> a = props.getProperty("a", new TypeReference<List<String>>() {});
 
         assertArrayEquals(new String[]{"1", "2", "3"}, a.toArray());
         assertEquals("lol", obj.getProperty("b", new TypeReference<String>() {}));

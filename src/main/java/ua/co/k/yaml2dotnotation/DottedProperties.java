@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 @JsonDeserialize(using = DottedPropertiesDeserializer.class)
 public abstract class DottedProperties {
@@ -30,6 +31,18 @@ public abstract class DottedProperties {
 
         public String asString() {
             return DottedProperties.this.getProperty(path, String.class);
+        }
+
+        public BigDecimal asBigDecimal() {
+            return DottedProperties.this.getProperty(path, BigDecimal.class);
+        }
+
+        public Boolean asBoolean() {
+            return DottedProperties.this.getProperty(path, Boolean.class);
+        }
+
+        public Integer asInteger() {
+            return DottedProperties.this.getProperty(path, Integer.class);
         }
     }
 }

@@ -2,9 +2,10 @@ buildscript {
 
 }
 
-apply plugin: 'java'
+apply plugin: "java"
 apply plugin: "maven"
 apply plugin: "maven-publish"
+apply plugin: "jacoco"
 
 group 'io.github.msangel'
 version '1.0.0-SNAPSHOT'
@@ -22,6 +23,7 @@ dependencies {
     compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.8'
     testCompile 'org.hamcrest:hamcrest-core:2.1'
     testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:2.+'
 }
 
 
@@ -47,7 +49,25 @@ publishing {
     }
 }
 
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.8
+            }
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.8
+            }
+        }
+   }
+}
 
+tasks.jacocoTestCoverageVerification.dependsOn(jacocoTestReport)
+tasks.publish.dependsOn(jacocoTestCoverageVerification)
 tasks.publish.dependsOn(build)
 tasks.install.dependsOn(build)
 
