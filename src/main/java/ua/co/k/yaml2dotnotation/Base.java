@@ -33,6 +33,7 @@ public class Base extends DottedProperties {
         }
     }
 
+    // todo: https://tools.ietf.org/html/rfc6901
     private static String dotted2pointer(String in) {
         return "/"+String.join("/", in.split("\\."));
     }
