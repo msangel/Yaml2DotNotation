@@ -1,6 +1,6 @@
 package ua.co.k.yaml2dotnotation;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.jayway.jsonpath.TypeRef;
 
 class Cascade extends DottedProperties {
     private final DottedProperties defaults;
@@ -17,7 +17,7 @@ class Cascade extends DottedProperties {
     }
 
     @Override
-    public <T> T getProperty(String path, TypeReference<T> ref) {
+    public <T> T getProperty(String path, TypeRef<T> ref) {
         if (this.defaults.hasProperty(path)) {
             return this.defaults.getProperty(path, ref);
         }

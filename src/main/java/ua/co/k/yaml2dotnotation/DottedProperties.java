@@ -1,23 +1,18 @@
 package ua.co.k.yaml2dotnotation;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.TreeNode;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.jayway.jsonpath.TypeRef;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
-@JsonDeserialize(using = DottedPropertiesDeserializer.class)
 public abstract class DottedProperties {
     public abstract boolean hasProperty(String path);
 
     public <T> T getProperty(String path, Class<T> ref) {
-        return getProperty(path, new TypeReference<T>(){});
+        return getProperty(path, new TypeRef<T>(){});
     }
 
-    public abstract <T> T getProperty(String path, TypeReference<T> ref);
+    public abstract <T> T getProperty(String path, TypeRef<T> ref);
 
     public CommonTypes getProperty(String path) {
         return new CommonTypes(path);

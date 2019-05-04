@@ -4,17 +4,21 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.jayway.jsonpath.*;
+import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
+import net.minidev.json.writer.JsonReader;
 
 import java.io.IOException;
 
 public class Base extends DottedProperties {
 
-    private final TreeNode treeNode;
-    private final ObjectCodec codec;
+    private TreeNode treeNode;
+    private ParseContext parseContext;
+    private DocumentContext context;
 
-    Base(TreeNode treeNode, ObjectCodec codec) {
-        this.treeNode = treeNode;
-        this.codec = codec;
+
+    public Base(DocumentContext context) {
+        this.context = context;
     }
 
     @Override
@@ -23,17 +27,7 @@ public class Base extends DottedProperties {
     }
 
     @Override
-    public <T> T getProperty(String path, TypeReference<T> ref) {
-        path = dotted2pointer(path);
-        JsonParser parser = this.treeNode.at(path).traverse(this.codec);
-        try {
-            return parser.readValueAs(ref);
-        } catch (IOException e) {
-            throw new RuntimeException("problem getting property", e);
-        }
-    }
-
-    private static String dotted2pointer(String in) {
-        return "/"+String.join("/", in.split("\\."));
+    public <T> T getProperty(String path, TypeRef<T> ref) {
+        return this.context.read(path, ref);
     }
 }

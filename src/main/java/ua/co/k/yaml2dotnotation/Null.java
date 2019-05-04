@@ -1,6 +1,6 @@
 package ua.co.k.yaml2dotnotation;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.jayway.jsonpath.TypeRef;
 
 class Null extends DottedProperties {
 
@@ -10,7 +10,7 @@ class Null extends DottedProperties {
     }
 
     @Override
-    public <T> T getProperty(String path, TypeReference<T> ref) {
+    public <T> T getProperty(String path, TypeRef<T> ref) {
         return null;
     }
 }
