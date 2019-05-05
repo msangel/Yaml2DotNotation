@@ -22,7 +22,7 @@ public class DottedToPointer {
             // http://pharobooks.gforge.inria.fr/PharoByExampleTwo-Eng/latest/PetitParser.pdf
             def("start", ref("elements").end());
             def("plain_el",
-                    ref("separator").neg().star()
+                    of(".").or(of("[")).neg().plus()
             );
             def("squared_el",
                     of("[")
@@ -31,18 +31,17 @@ public class DottedToPointer {
                     .seq(of("'"))
                     .seq(of("]"))
             );
-            def("escaped_string", of("'").neg());
+            def("escaped_string", of("'").neg().star());
 
             def("elements",
                     ref("plain_el").or(ref("squared_el")) // first
                     .seq(
-                            ref("separator").seq(ref("plain_el"))
+                            of(".").seq(ref("plain_el"))
                                     .or(ref("squared_el"))
                                     .star()
                     ));
 
             //
-            def("separator", of("."));
             // as.as.as        // {as} {.} {as} {.} {as}
             // as['as'].as     // {as}
             // as['as']['as']
