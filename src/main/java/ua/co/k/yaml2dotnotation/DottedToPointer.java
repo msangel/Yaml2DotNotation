@@ -3,6 +3,7 @@ package ua.co.k.yaml2dotnotation;
 import org.petitparser.context.Result;
 import org.petitparser.tools.GrammarDefinition;
 import org.petitparser.tools.GrammarParser;
+import org.petitparser.utils.Functions;
 
 import java.util.List;
 import java.util.function.Function;
@@ -24,29 +25,20 @@ public class DottedToPointer {
 
         public DottedGrammarDefinition() {
             def("start", ref("elements").end());
-            def("elements", ref("element").separatedBy(of(".")));
-            def("element", anyOf(".").neg().star());
-            // as.as.as
+            def("element", ref("separator").neg().star());
+            def("elements", ref("element").seq(ref("separator").seq(ref("element")).star()));
 
-            ;
+            //
+            def("separator", of("."));
+            // as.as.as        // {as} {.} {as} {.} {as}
+            // as['as'].as     // {as}
+            // as['as']['as']
 
-            action("elements", (Function<List, List<String>>) list -> {
-//                    System.out.println(list.get(0).getClass()); // class java.util.ArrayList<Character>
-//                    System.out.println(list.get(1).getClass()); // class java.lang.String
-//                    System.out.println(list.get(2).getClass()); // class java.util.ArrayList<Character>
 
-                Stream<String> stream = list.stream().flatMap((Function<Object, Stream<String>>) o -> {
-                    if (o instanceof String) {
-                        return Stream.empty();
-                    } else {
-                        List<Character> oo = (List<Character>) o;
-                        String value = oo.stream().map(Object::toString).collect(Collectors.joining());
-                        return Stream.of(value);
-                    }
-                });
-
-                return stream.collect(Collectors.toList());
-            });
+//            action("elements", Functions.withoutSeparators().andThen((Function<List, List<String>>) list -> {
+//                Function<List<Character>, String> listToString = o -> o.stream().map(Object::toString).collect(Collectors.joining());
+//                return ((List<List<Character>>)list).stream().map(listToString).collect(Collectors.toList());
+//            }));
         }
     }
 
@@ -65,8 +57,8 @@ public class DottedToPointer {
 
 
     public static void main(String[] args) {
-        Result parseResult = parser.parse("as.bas");
-        List<String> res = parseResult.get();
+        Result parseResult = parser.parse("as.bas.das");
+        Object res = parseResult.get();
         System.out.println(res);
     }
 }
