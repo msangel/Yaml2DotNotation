@@ -6,6 +6,7 @@ import org.petitparser.tools.GrammarParser;
 import org.petitparser.utils.Functions;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,19 +15,31 @@ import static org.petitparser.parser.primitive.CharacterParser.anyOf;
 import static org.petitparser.parser.primitive.StringParser.of;
 
 public class DottedToPointer {
-    private static class DottedPathParser extends GrammarParser {
-
-        public DottedPathParser() {
-            super(new DottedGrammarDefinition());
-        }
-    }
-
     private static class DottedGrammarDefinition extends GrammarDefinition {
 
         public DottedGrammarDefinition() {
+
+            // http://pharobooks.gforge.inria.fr/PharoByExampleTwo-Eng/latest/PetitParser.pdf
             def("start", ref("elements").end());
-            def("element", ref("separator").neg().star());
-            def("elements", ref("element").seq(ref("separator").seq(ref("element")).star()));
+            def("plain_el",
+                    ref("separator").neg().star()
+            );
+            def("squared_el",
+                    of("[")
+                    .seq(of("'"))
+                    .seq(ref("escaped_string"))
+                    .seq(of("'"))
+                    .seq(of("]"))
+            );
+            def("escaped_string", of("'").neg());
+
+            def("elements",
+                    ref("plain_el").or(ref("squared_el")) // first
+                    .seq(
+                            ref("separator").seq(ref("plain_el"))
+                                    .or(ref("squared_el"))
+                                    .star()
+                    ));
 
             //
             def("separator", of("."));
@@ -34,16 +47,35 @@ public class DottedToPointer {
             // as['as'].as     // {as}
             // as['as']['as']
 
+            // ['as'] .as
+            // ['as'] ['as']
 
-//            action("elements", Functions.withoutSeparators().andThen((Function<List, List<String>>) list -> {
-//                Function<List<Character>, String> listToString = o -> o.stream().map(Object::toString).collect(Collectors.joining());
-//                return ((List<List<Character>>)list).stream().map(listToString).collect(Collectors.toList());
-//            }));
+
+            action("elements", new Function<List, Object>() {
+                @Override
+                public Object apply(List o) {
+
+                    if (!o.isEmpty()) {
+                        System.out.println(o.getClass());
+                        o.forEach(new Consumer() {
+                            @Override
+                            public void accept(Object o) {
+                                System.out.println(">" + o.getClass() + "  " + o.toString());
+                            }
+                        });
+
+                    } else {
+                        System.out.println(o.getClass() + " (empty)");
+                    }
+                    System.out.println();
+                    return "";
+                }
+            });
         }
     }
 
 
-    private static DottedPathParser parser = new DottedPathParser();
+    private static GrammarParser parser = new GrammarParser(new DottedGrammarDefinition());
 
     private final String source;
 
@@ -57,8 +89,25 @@ public class DottedToPointer {
 
 
     public static void main(String[] args) {
-        Result parseResult = parser.parse("as.bas.das");
-        Object res = parseResult.get();
-        System.out.println(res);
+        String input = "as.bas.das";
+        System.out.println(input);
+        String val = parser.parse(input).get().toString();
+        // System.out.println(val);
+        input = "['as'].bas.das";
+        System.out.println(input);
+        val = parser.parse(input).get().toString();
+        // System.out.println(val);
+        input = "as['bas'].das";
+        System.out.println(input);
+        val = parser.parse(input).get().toString();
+        // System.out.println(val);
+        input = "as.bas['das']";
+        System.out.println(input);
+        val = parser.parse(input).get().toString();
+        // System.out.println(val);
+        input = "as['bas']['das']";
+        System.out.println(input);
+        val = parser.parse(input).get().toString();
+        // System.out.println(val);
     }
 }
