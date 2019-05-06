@@ -102,6 +102,24 @@ public class DottedToPointer {
                 }
 
                 private boolean isSecondEmpty(Object in) {
+// a['b'].c
+//> class java.util.ArrayList  [a]
+//>> class java.lang.Character  a
+//
+//> class java.util.ArrayList  [[[, ', [b], ', ]], [., [c]]]
+//>> class java.util.ArrayList  [[, ', [b], ', ]]
+//  >>> class java.lang.String  [                      <- string
+//  >>> class java.lang.String  '                      <- string
+//  >>> class java.util.ArrayList  [b]
+//  >>>> class java.lang.Character  b
+//  >>> class java.lang.String  '
+//  >>> class java.lang.String  ]
+//>> class java.util.ArrayList  [., [c]]
+//  >>> class java.lang.String  .                      <- string
+//  >>> class java.util.ArrayList  [c]                 <- array
+//  >>>> class java.lang.Character  c
+
+
                     return ((List) in).isEmpty();
                 }
 
