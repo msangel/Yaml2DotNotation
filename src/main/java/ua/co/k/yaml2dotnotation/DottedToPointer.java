@@ -40,9 +40,9 @@ public class DottedToPointer {
                     );
 
             //
-            // as.as.as        // {as} {.} {as} {.} {as}
-            // as['as'].as     // {as}
-            // as['as']['as']
+            // as.as.as        // {as} ({.} {as})  ({.} {as})
+            // as['as'].as     // {as} (['as'])    ({.} {as})
+            // as['as']['as']  // {as} (['as'])    (['as'])
 
             // ['as'] .as
             // ['as'] ['as']
@@ -97,11 +97,6 @@ public class DottedToPointer {
                 }
 
                 private List<String> getAllFromSecond(Object o) {
-                    List<String> res = new ArrayList<>();
-                    return res;
-                }
-
-                private boolean isSecondEmpty(Object in) {
 // a['b'].c
 //> class java.util.ArrayList  [a]
 //>> class java.lang.Character  a
@@ -120,6 +115,11 @@ public class DottedToPointer {
 //  >>>> class java.lang.Character  c
 
 
+                    List<String> res = new ArrayList<>();
+                    return res;
+                }
+
+                private boolean isSecondEmpty(Object in) {
                     return ((List) in).isEmpty();
                 }
 
