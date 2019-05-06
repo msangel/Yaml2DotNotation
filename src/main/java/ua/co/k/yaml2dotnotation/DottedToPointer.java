@@ -3,8 +3,8 @@ package ua.co.k.yaml2dotnotation;
 import org.petitparser.tools.GrammarDefinition;
 import org.petitparser.tools.GrammarParser;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -56,14 +56,36 @@ public class DottedToPointer {
                     if (!o.isEmpty()) {
                         res.add(getFirstEl(o.get(0)));
 
-                        if (!isSecondEmpty(o.get(1))) {
-                            System.out.println("second is not empty");
+                        Object second = o.get(1);
+                        if (!isSecondEmpty(second)) {
+                            res.addAll(getAllFromSecond(second));
+                        }
+
+
+                        class holding {
+                            public BiConsumer printer = new BiConsumer<Object, Integer>() {
+                                @Override
+                                public void accept(Object o, Integer deep) {
+                                    String prefix = ((deep>2)?"  ":"") + String.join("", Collections.nCopies(deep, ">"))+ " ";
+                                    System.out.println(prefix + o.getClass() + "  " + o.toString());
+                                    if (o instanceof List) {
+                                        ((List) o).forEach(new Consumer() {
+                                            @Override
+                                            public void accept(Object o) {
+                                                holding.this.printer.accept(o, deep+1);
+                                            }
+                                        });
+                                    }
+
+                                }
+                            };
                         }
 
                         o.forEach(new Consumer() {
                             @Override
                             public void accept(Object o) {
-                                System.out.println(">" + o.getClass() + "  " + o.toString());
+                                new holding().printer.accept(o,1);
+                                System.out.println();
                             }
                         });
 
@@ -71,6 +93,11 @@ public class DottedToPointer {
                         return new ArrayList<String>();
                     }
                     System.out.println();
+                    return res;
+                }
+
+                private List<String> getAllFromSecond(Object o) {
+                    List<String> res = new ArrayList<>();
                     return res;
                 }
 
@@ -163,5 +190,13 @@ public class DottedToPointer {
         System.out.println(input);
         parser.parse(input).get();
 
+
+        input = "['a']['b']['c']";
+        System.out.println(input);
+        parser.parse(input).get();
+
+        input = "a['b'].c";
+        System.out.println(input);
+        parser.parse(input).get();
     }
 }
