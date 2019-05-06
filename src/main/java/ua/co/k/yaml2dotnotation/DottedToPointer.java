@@ -97,23 +97,28 @@ public class DottedToPointer {
                 }
 
                 private List<String> getAllFromSecond(Object o) {
-// a['b'].c
+//a['b'].c.ddd
 //> class java.util.ArrayList  [a]
 //>> class java.lang.Character  a
 //
-//> class java.util.ArrayList  [[[, ', [b], ', ]], [., [c]]]
+//> class java.util.ArrayList  [[[, ', [b], ', ]], [., [c]], [., [d, d, d]]]
 //>> class java.util.ArrayList  [[, ', [b], ', ]]
-//  >>> class java.lang.String  [                      <- string
-//  >>> class java.lang.String  '                      <- string
+//  >>> class java.lang.String  [                     <- string
+//  >>> class java.lang.String  '                     <- string
 //  >>> class java.util.ArrayList  [b]
 //  >>>> class java.lang.Character  b
 //  >>> class java.lang.String  '
 //  >>> class java.lang.String  ]
 //>> class java.util.ArrayList  [., [c]]
-//  >>> class java.lang.String  .                      <- string
-//  >>> class java.util.ArrayList  [c]                 <- array
+//  >>> class java.lang.String  .                     <- string
+//  >>> class java.util.ArrayList  [c]                <- array
 //  >>>> class java.lang.Character  c
-
+//>> class java.util.ArrayList  [., [d, d, d]]
+//  >>> class java.lang.String  .                     <- string
+//  >>> class java.util.ArrayList  [d, d, d]          <- array
+//  >>>> class java.lang.Character  d
+//  >>>> class java.lang.Character  d
+//  >>>> class java.lang.Character  d
 
                     List<String> res = new ArrayList<>();
                     return res;
@@ -213,7 +218,7 @@ public class DottedToPointer {
         System.out.println(input);
         parser.parse(input).get();
 
-        input = "a['b'].c";
+        input = "a['b'].c.ddd";
         System.out.println(input);
         parser.parse(input).get();
     }
