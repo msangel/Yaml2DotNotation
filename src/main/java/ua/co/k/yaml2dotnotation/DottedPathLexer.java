@@ -1,5 +1,6 @@
 package ua.co.k.yaml2dotnotation;
 
+import com.fasterxml.jackson.core.JsonPointer;
 import org.petitparser.tools.GrammarDefinition;
 import org.petitparser.tools.GrammarParser;
 
@@ -117,8 +118,18 @@ public class DottedPathLexer {
         this.source = source;
     }
 
-    public String convert() {
-        return parser.parse(source).get();
+    public JsonPointer convert() {
+        List<String> tokens = parser.parse(source).get();
+        String pointerPath = tokens.stream().map(new Function<String, String>() {
+            @Override
+            public String apply(String s) {
+                // https://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-03#section-3
+                // If a reference token contains '~' (%x7E) or '/' (%x2F) characters,
+                // they MUST be encoded as '~0' and '~1' respectively.
+                return s.replaceAll("~", "~0").replaceAll("\\/", "~1");
+            }
+        }).collect(Collectors.joining("/", "/", ""));
+        return JsonPointer.compile(pointerPath);
     }
 
 

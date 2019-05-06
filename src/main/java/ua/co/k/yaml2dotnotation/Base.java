@@ -19,13 +19,18 @@ public class Base extends DottedProperties {
 
     @Override
     public boolean hasProperty(String path) {
-        throw new RuntimeException("I need to go to sleep, will implent later");
+        TreeNode node = this.treeNode.at(path);
+        return !node.isMissingNode();
     }
 
     @Override
     public <T> T getProperty(String path, TypeReference<T> ref) {
         path = dotted2pointer(path);
-        JsonParser parser = this.treeNode.at(path).traverse(this.codec);
+        TreeNode node = this.treeNode.at(path);
+        if (node.isMissingNode()) {
+            return null;
+        }
+        JsonParser parser = node.traverse(this.codec);
         try {
             return parser.readValueAs(ref);
         } catch (IOException e) {
