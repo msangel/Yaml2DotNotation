@@ -28,11 +28,18 @@ import java.util.function.Function;
  */
 public class DottedPropertiesInjector {
 
-    @FunctionalInterface
-    public interface ThrowingConsumer<T> extends Consumer<T> {
+    public static abstract class FieldInformation implements Consumer<DottedProperties>{
+
+        final String path;
+        final TypeReference<?> valueTypeRef;
+
+        public FieldInformation(String path, TypeReference<?> valueTypeRef){
+            this.path = path;
+            this.valueTypeRef = valueTypeRef;
+        }
 
         @Override
-        default void accept(final T elem) {
+        public void accept(final DottedProperties elem) {
             try {
                 acceptThrows(elem);
             } catch (final Exception e) {
@@ -40,28 +47,16 @@ public class DottedPropertiesInjector {
             }
         }
 
-        void acceptThrows(T elem) throws Exception;
-
+        abstract void acceptThrows(DottedProperties elem) throws Exception;
     }
 
-    public static class FieldInformation {
-        String path;
-        TypeReference<?> valueTypeRef;
-        ThrowingConsumer<DottedProperties> setterInvoker;
-    }
-
-    public static void injectAnnotatedFields(Object target) {
+    public static void injectAnnotatedFields(Object target, DottedProperties props) {
         Objects.requireNonNull(target, "injecting properties into NULL is not possible");
-
-        Function<List<Field>, List<FieldInformation>> mapper = null;
-        List<FieldInformation> fieldsToInject = getFields(target.getClass(), mapper);
-
-        DottedProperties allProps = null;
-
-
+        List<FieldInformation> fieldsToInject = getFields(target.getClass(), getCandidateFieldMapper(target));
+        fieldsToInject.forEach(el -> el.accept(props));
     }
 
-    static Function<List<Field>, List<FieldInformation>> isCandidateField(Object target, Field field) {
+    static Function<List<Field>, List<FieldInformation>> getCandidateFieldMapper(Object target) {
         return new Function<List<Field>, List<FieldInformation>>() {
             @Override
             public List<FieldInformation> apply(List<Field> fields) {
@@ -82,30 +77,23 @@ public class DottedPropertiesInjector {
                     return null;
                 }
 
-                FieldInformation res = new FieldInformation();
-
-                res.path = annotation.value();
-
-                res.valueTypeRef = new TypeReference<Object>() {
+                TypeReference<Object> valueTypeRef = new TypeReference<Object>() {
                     @Override
                     public Type getType() {
                         return field.getType();
                     }
                 };
 
-
-                Consumer<DottedProperties> setterInvoker;
                 if (field.isAccessible()) {
                     // field is public, we can write it
                     // but need check if is writable (public and is not a final)
-                    res.setterInvoker = new ThrowingConsumer<DottedProperties>() {
-
+                    return new FieldInformation(annotation.value(), valueTypeRef) {
                         @Override
-                        public void acceptThrows(DottedProperties elem) throws Exception {
-
+                        void acceptThrows(DottedProperties elem) throws Exception {
+                            Object value = elem.getProperty(this.path, this.valueTypeRef);
+                            field.set(target, value);
                         }
                     };
-                    return res;
                 } else {
                     // https://stackoverflow.com/questions/10009052/invoking-setter-method-using-java-reflection
                     try {
@@ -114,17 +102,17 @@ public class DottedPropertiesInjector {
                         if (writeMethod == null) {
                             return null;
                         }
-                        res.setterInvoker = new ThrowingConsumer<DottedProperties>() {
-
+                        new FieldInformation(annotation.value(), valueTypeRef) {
                             @Override
-                            public void acceptThrows(DottedProperties elem) throws Exception {
-                                writeMethod.invoke(target, "");
+                            void acceptThrows(DottedProperties elem) throws Exception {
+                                Object value = elem.getProperty(this.path, this.valueTypeRef);
+                                writeMethod.invoke(target, value);
                             }
                         };
-                        return res;
                     } catch (IntrospectionException e) {
                         return null;
                     }
+                    return null;
                 }
             }
         };

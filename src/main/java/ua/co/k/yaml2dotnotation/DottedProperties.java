@@ -7,14 +7,19 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
-@JsonDeserialize(using = DottedPropertiesDeserializer.class)
 public abstract class DottedProperties {
     public abstract boolean hasProperty(String path);
 
     public <T> T getProperty(String path, Class<T> ref) {
-        return getProperty(path, new TypeReference<T>(){});
+        return getProperty(path, new TypeReference<T>(){
+            @Override
+            public Type getType() {
+                return ref;
+            }
+        });
     }
 
     public abstract <T> T getProperty(String path, TypeReference<T> ref);

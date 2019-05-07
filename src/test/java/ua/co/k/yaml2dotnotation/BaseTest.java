@@ -3,6 +3,7 @@ package ua.co.k.yaml2dotnotation;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,12 +24,12 @@ public class BaseTest {
     private DottedProperties props;
 
     TreeNode treeNode;
-    ObjectCodec codec;
+    ObjectMapper codec;
 
     @Before
     public void init() {
         treeNode = mock(TreeNode.class);
-        codec = mock(ObjectCodec.class);;
+        codec = mock(ObjectMapper.class);;
         props = new Base(treeNode, codec);
     }
 

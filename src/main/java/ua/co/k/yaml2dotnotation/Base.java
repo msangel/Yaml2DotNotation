@@ -4,15 +4,16 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
 public class Base extends DottedProperties {
 
     private final TreeNode treeNode;
-    private final ObjectCodec codec;
+    private final ObjectMapper codec;
 
-    Base(TreeNode treeNode, ObjectCodec codec) {
+    Base(TreeNode treeNode, ObjectMapper codec) {
         this.treeNode = treeNode;
         this.codec = codec;
     }
@@ -32,7 +33,8 @@ public class Base extends DottedProperties {
         }
         JsonParser parser = node.traverse(this.codec);
         try {
-            return parser.readValueAs(ref);
+            Object value = parser.readValueAs(Object.class);
+            return codec.convertValue(value, ref);
         } catch (IOException e) {
             throw new RuntimeException("problem getting property", e);
         }
