@@ -119,7 +119,7 @@ public class DottedPathLexer {
     }
 
     public JsonPointer convert() {
-        List<String> tokens = parser.parse(source).get();
+        List<String> tokens = getTokens();
         String pointerPath = tokens.stream().map(new Function<String, String>() {
             @Override
             public String apply(String s) {
@@ -130,6 +130,10 @@ public class DottedPathLexer {
             }
         }).collect(Collectors.joining("/", "/", ""));
         return JsonPointer.compile(pointerPath);
+    }
+
+    /* package */ List<String> getTokens() {
+        return parser.parse(source).get();
     }
 
 
