@@ -2,10 +2,8 @@ package ua.co.k.yaml2dotnotation;
 
 import org.junit.Test;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
 
 public class DottedPathLexerTest {
 
@@ -23,69 +21,36 @@ public class DottedPathLexerTest {
         assertArrayEquals(parts, parse);
     }
 
+    void validateInvalid(String exp) {
+        try {
+            parse(exp);
+            fail();
+        } catch (Exception e) {}
+    }
+
 
     @Test
     public void testIt() {
 
         validateValid("as.bas.das", newArray("as", "bas", "das"));
-
-        String input;
-
-        input = "as.bas.das";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-        // System.out.println(val);
-        input = "['as'].bas.das";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-        // System.out.println(val);
-        input = "as['bas'].das";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-        // System.out.println(val);
-        input = "as.bas['das']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-        // System.out.println(val);
-        input = "as['bas']['das']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "a";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "a.b";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "a['b']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "['a'].b";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "['a']['b']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-
-        input = "['a']['b']['c']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "a['b'].c.ddd";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "a['b\\'s'].c.ddd";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-        input = "a['b\\\\\\'s'].c.ddd";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
+        validateValid("['as'].bas.das", newArray("as", "bas", "das"));
+        validateValid("as['bas'].das", newArray("as", "bas", "das"));
+        validateValid("as.bas['das']", newArray("as", "bas", "das"));
+        validateValid("as['bas']['das']", newArray("as", "bas", "das"));
+        validateValid("['as']['bas']['das']", newArray("as", "bas", "das"));
+        validateValid("['as'].bas['das']", newArray("as", "bas", "das"));
+        validateValid("a", newArray("a"));
+        validateValid("['a']", newArray("a"));
+        validateValid("a.b", newArray("a", "b"));
+        validateValid("a['b']", newArray("a", "b"));
+        validateValid("['a'].b", newArray("a", "b"));
+        validateValid("['a']['b']", newArray("a", "b"));
+        validateValid("['a']['b']['c']", newArray("a", "b", "c"));
+        validateValid("a['b'].c.ddd", newArray("a", "b", "c", "ddd"));
+        validateValid("a['b\\'s'].c.ddd", newArray("a", "b's", "c", "ddd"));
+        validateValid("a['b\\\\\\'s'].c.ddd", newArray("a", "b\\'s", "c", "ddd"));
+        validateValid("a['bs\\''].c.ddd", newArray("a", "bs'", "c", "ddd"));
+        validateInvalid("a['bs\\\\''].c.ddd");
     }
 
 }
