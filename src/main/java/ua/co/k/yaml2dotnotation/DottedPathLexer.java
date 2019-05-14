@@ -9,20 +9,46 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static org.petitparser.parser.primitive.CharacterParser.anyOf;
 import static org.petitparser.parser.primitive.StringParser.of;
 
 public class DottedPathLexer {
 
-    private static String listOfCharactersToString(List<Character> oo) {
-        String collected = oo.stream().map(Object::toString).collect(Collectors.joining());
-        return collected;
+    final static boolean doDebugPrint = false;
+
+    private static String listToString(List oo) {
+        Stream<String> stream = oo.stream().map((Function<Object, String>) o -> {
+            if(o instanceof Character) {
+                return o.toString();
+            } else if (o instanceof String) {
+                if("\\'".equalsIgnoreCase((String) o)) {
+                    return "'";
+                } else if("\\\\".equalsIgnoreCase((String) o)) {
+                    return "\\";
+                } else {
+                    return (String) o;
+                }
+            }
+            throw new RuntimeException("unknown type of object: " + o.getClass());
+        });
+        return stream.collect(Collectors.joining());
     }
 
-    // debugger helper
-    // new holding().printer.accept(o, 1);
     private static class holding {
-        public BiConsumer printer = new BiConsumer<Object, Integer>() {
+        private final String name;
+
+        public holding(String name){
+            this.name = name;
+        }
+        public void inspect(Object o) {
+            if(doDebugPrint) {
+                System.out.println("Working on: " + name);
+                this.printer.accept(o, 0);
+            }
+        }
+        private BiConsumer printer = new BiConsumer<Object, Integer>() {
             @Override
             public void accept(Object o, Integer deep) {
                 String prefix = ((deep > 2) ? "  " : "") + String.join("", Collections.nCopies(deep, ">")) + " ";
@@ -55,7 +81,12 @@ public class DottedPathLexer {
                     .seq(of("'"))
                     .seq(of("]"))
             );
-            def("escaped_string", of("'").neg().star());
+
+            def("escaped_string",
+                    of("\\\\")
+                    .or(of("\\'"))
+                    .or(of("'").neg())
+                    .star());
 
             def("elements",
                     ref("plain_el").or(ref("squared_el")) // first
@@ -69,24 +100,27 @@ public class DottedPathLexer {
             action("plain_el", new Function<List<Character>, Object>() {
                 @Override
                 public Object apply(List<Character> o) {
-                    return listOfCharactersToString(o);
+                    new holding("plain_el").inspect(o);
+                    return listToString(o);
                 }
             });
 
             action("squared_el", new Function<List<Character>, Object>() {
                 @Override
                 public Object apply(List o) {
+                    new holding("squared_el").inspect(o);
                     o.remove(0); // [
                     o.remove(0); // '
                     o.remove(o.size() - 1); // ]
                     o.remove(o.size() - 1); // '
-                    return listOfCharactersToString((List<Character>)o.get(0));
+                    return listToString((List<Character>)o.get(0));
                 }
             });
 
             action("elements", new Function<List, Object>() {
                 @Override
                 public Object apply(List o) {
+                    new holding("elements").inspect(o);
                     List<String> res = new ArrayList<>();
                     if (!o.isEmpty()) {
                         res.add((String)o.get(0));
@@ -134,59 +168,5 @@ public class DottedPathLexer {
 
     /* package */ List<String> getTokens() {
         return parser.parse(source).get();
-    }
-
-
-    public static void main(String[] args) {
-        String input;
-
-        input = "as.bas.das";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-        // System.out.println(val);
-        input = "['as'].bas.das";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-        // System.out.println(val);
-        input = "as['bas'].das";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-        // System.out.println(val);
-        input = "as.bas['das']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-        // System.out.println(val);
-        input = "as['bas']['das']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "a";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "a.b";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "a['b']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "['a'].b";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "['a']['b']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-
-        input = "['a']['b']['c']";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
-
-        input = "a['b'].c.ddd";
-        System.out.println(input);
-        System.out.println(parser.parse(input).get().toString());
     }
 }
