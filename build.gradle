@@ -8,7 +8,7 @@ apply plugin: "maven-publish"
 apply plugin: "jacoco"
 
 group 'io.github.msangel'
-version '1.0.0-SNAPSHOT'
+version '1.0.3-SNAPSHOT'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

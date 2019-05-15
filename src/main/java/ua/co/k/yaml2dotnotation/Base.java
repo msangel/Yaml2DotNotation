@@ -1,6 +1,7 @@
 package ua.co.k.yaml2dotnotation;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,8 +26,8 @@ public class Base extends DottedProperties {
 
     @Override
     public <T> T getProperty(String path, TypeReference<T> ref) {
-        path = dotted2pointer(path);
-        TreeNode node = this.treeNode.at(path);
+        JsonPointer jsonPointer = new DottedPathLexer(path).convert();
+        TreeNode node = this.treeNode.at(jsonPointer);
         if (node.isMissingNode()) {
             return null;
         }
@@ -37,10 +38,5 @@ public class Base extends DottedProperties {
         } catch (IOException e) {
             throw new RuntimeException("problem getting property", e);
         }
-    }
-
-    // todo: https://tools.ietf.org/html/rfc6901
-    private static String dotted2pointer(String in) {
-        return "/"+String.join("/", in.split("\\."));
     }
 }

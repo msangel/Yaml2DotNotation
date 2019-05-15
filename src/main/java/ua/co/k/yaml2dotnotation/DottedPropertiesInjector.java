@@ -1,7 +1,7 @@
 package ua.co.k.yaml2dotnotation;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import ua.co.k.yaml2dotnotation.annot.Prop;
+import ua.co.k.yaml2dotnotation.annot.Value;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -34,7 +34,7 @@ class DottedPropertiesInjector {
         final String path;
         final TypeReference<?> valueTypeRef;
 
-        public FieldInformation(String path, TypeReference<?> valueTypeRef){
+        FieldInformation(String path, TypeReference<?> valueTypeRef){
             this.path = path;
             this.valueTypeRef = valueTypeRef;
         }
@@ -57,7 +57,7 @@ class DottedPropertiesInjector {
         fieldsToInject.forEach(el -> el.accept(props));
     }
 
-    static Function<List<Field>, List<FieldInformation>> getCandidateFieldMapper(Object target) {
+    private static Function<List<Field>, List<FieldInformation>> getCandidateFieldMapper(Object target) {
         return new Function<List<Field>, List<FieldInformation>>() {
             @Override
             public List<FieldInformation> apply(List<Field> fields) {
@@ -73,7 +73,7 @@ class DottedPropertiesInjector {
 
             private FieldInformation getFieldInformation(Field field) {
 
-                Prop annotation = field.getAnnotation(Prop.class);
+                Value annotation = field.getAnnotation(Value.class);
                 if (annotation == null) {
                     return null;
                 }
@@ -126,7 +126,7 @@ class DottedPropertiesInjector {
         };
     }
 
-    public static List<FieldInformation> getFields(Class<?> startClass, Function<List<Field>, List<FieldInformation>> mapperToSetters) {
+    private static List<FieldInformation> getFields(Class<?> startClass, Function<List<Field>, List<FieldInformation>> mapperToSetters) {
 
         List<FieldInformation> currentClassFields = mapperToSetters.apply(Arrays.asList(startClass.getDeclaredFields()));
 
