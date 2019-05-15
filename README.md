@@ -4,6 +4,12 @@ Library for converting yaml to plain Java property file with full path in dotted
 
 Draft for creating classical property file: https://gist.github.com/msangel/116730b2f64b8eeacb80a0a4fffa73ff
 
+## Install
+Follow instructions here: https://jitpack.io/#msangel/Yaml2DotNotation
+
+## Usage
+TBD
+
 ## Alternatives
 Here are two similar projects with answers about why they did not fit my needs:
 * [Spring Boot](https://github.com/spring-projects/spring-boot) has a [module for this](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-Configuration-Binding). Actually, my project inspirited by spring. But unfortunately, I was needed the lightweight implementation that respects "S" from "SOLID". And also I already had the DI container there, and that was not a spring. 
