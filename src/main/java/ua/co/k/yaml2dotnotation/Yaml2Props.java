@@ -66,4 +66,7 @@ public class Yaml2Props {
         return new Cascade(defaults, explisit);
     }
 
+    public static void inject(Object target, DottedProperties properties) {
+        DottedPropertiesInjector.injectAnnotatedFields(target, properties);
+    }
 }

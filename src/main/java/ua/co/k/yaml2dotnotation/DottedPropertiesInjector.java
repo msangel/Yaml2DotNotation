@@ -7,6 +7,7 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +27,7 @@ import java.util.function.Function;
  * Having this limitation in mind I decide even not implement this feature.
  *
  */
-public class DottedPropertiesInjector {
+class DottedPropertiesInjector {
 
     public static abstract class FieldInformation implements Consumer<DottedProperties>{
 
@@ -84,7 +85,13 @@ public class DottedPropertiesInjector {
                     }
                 };
 
-                if (field.isAccessible()) {
+                int modifiers = field.getModifiers();
+
+                if (Modifier.isFinal(modifiers)) {
+                    throw new InjectException("cannot set final filed " + field.getName());
+                }
+
+                if (Modifier.isPublic(modifiers)) {
                     // field is public, we can write it
                     // but need check if is writable (public and is not a final)
                     return new FieldInformation(annotation.value(), valueTypeRef) {
@@ -100,9 +107,10 @@ public class DottedPropertiesInjector {
                         PropertyDescriptor pd = new PropertyDescriptor(field.getName(), target.getClass());
                         Method writeMethod = pd.getWriteMethod();
                         if (writeMethod == null) {
-                            return null;
+                            throw new InjectException("field is not public and dont have setter method: " +  field.getName());
                         }
-                        new FieldInformation(annotation.value(), valueTypeRef) {
+
+                        return new FieldInformation(annotation.value(), valueTypeRef) {
                             @Override
                             void acceptThrows(DottedProperties elem) throws Exception {
                                 Object value = elem.getProperty(this.path, this.valueTypeRef);
@@ -110,9 +118,9 @@ public class DottedPropertiesInjector {
                             }
                         };
                     } catch (IntrospectionException e) {
-                        return null;
+                        throw new InjectException("problem with introspect field named " + field.getName() + ", is that field present/accessible/have setters?");
                     }
-                    return null;
+
                 }
             }
         };
