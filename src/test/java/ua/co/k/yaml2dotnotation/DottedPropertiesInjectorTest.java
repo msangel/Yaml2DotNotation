@@ -86,4 +86,22 @@ public class DottedPropertiesInjectorTest {
         DottedPropertiesInjector.injectAnnotatedFields(to, properties);
         fail();
     }
+
+
+    public static class MoreLevels extends TestObjectFine {
+        @Prop("d")
+        public String cas;
+    }
+
+    @Test
+    public void testInjectFineWithInheritance() {
+        DottedProperties properties = Yaml2Props.create("{ a: 1, b: 3, c: true, d: 42}");
+        MoreLevels to = new MoreLevels();
+        DottedPropertiesInjector.injectAnnotatedFields(to, properties);
+        assertEquals("1", to.as);
+        assertEquals(3, (int)to.getBas());
+        assertTrue(to.isDas());
+        assertEquals("42", to.cas);
+
+    }
 }
