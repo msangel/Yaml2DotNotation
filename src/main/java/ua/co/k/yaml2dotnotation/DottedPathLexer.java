@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import static org.petitparser.parser.primitive.CharacterParser.anyOf;
 import static org.petitparser.parser.primitive.StringParser.of;
 
+@SuppressWarnings("unchecked")
 public class DottedPathLexer {
 
     final static boolean doDebugPrint = false;

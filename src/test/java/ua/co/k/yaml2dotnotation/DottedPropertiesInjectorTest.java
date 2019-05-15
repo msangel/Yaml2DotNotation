@@ -102,6 +102,5 @@ public class DottedPropertiesInjectorTest {
         assertEquals(3, (int)to.getBas());
         assertTrue(to.isDas());
         assertEquals("42", to.cas);
-
     }
 }
