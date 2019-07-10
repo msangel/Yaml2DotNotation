@@ -107,3 +107,7 @@ Here are two similar projects with answers about why they did not fit my needs:
 * [Governator](https://github.com/Netflix/governator) is another "multitool" with such functionality. And it has exactly the same problems as a project above. Governator is a meta-library for google guice with a [similar module](https://github.com/Netflix/governator/wiki/Configuration-Mapping). And even if my project was built based on the guice too, I still reject the option of taking a lot of unknown stuff for solving simple task like, which I can solve by homebrew solution with minimal dependencies and with nothing extra.
 
 This project is not taking any DI container with it. 
+
+
+## Things to do
+Check this out: https://stackoverflow.com/questions/53196603/move-nested-map-values-of-a-mapstring-object-to-the-top-level
